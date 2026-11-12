@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Campaign {
+  id           String        @id
+  creator      String
+  goal         String
+  raised       String        @default("0")
+  deadline     BigInt
+  title        String
+  description  String
+  status       String        @default("Active")
+  donations    Donation[]
+  milestones   Milestone[]
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+}
+
+model Donation {
+  id          String   @id
+  campaignId  String
+  contributor String
+  amount      String
+  txHash      String
+  blockNumber BigInt
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@index([campaignId])
+}
+
+model Milestone {
+  id          String   @id
+  campaignId  String
+  milestoneId Int
+  status      String   @default("Pending")
+  txHash      String
+  blockNumber BigInt
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([campaignId, milestoneId])
+}
+
+model Transaction {
+  id          String    @id
+  campaignId  String?
+  type        String
+  actor       String?
+  amount      String?
+  txHash      String
+  logIndex    Int
+  blockNumber BigInt
+  campaign    Campaign? @relation(fields: [campaignId], references: [id])
+
+  @@index([txHash])
+}
+
+model IndexerState {
+  chainId     Int    @id
+  blockNumber BigInt
+}

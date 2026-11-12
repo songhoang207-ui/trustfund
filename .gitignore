@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+dist
+coverage
+.env
+.env.*
+!.env.example
+apps/api/prisma/*.db
+contracts/cache
+contracts/out
+contracts/broadcast
+*.log
+*.tsbuildinfo

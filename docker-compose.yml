@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: trustfund
+      POSTGRES_PASSWORD: trustfund
+      POSTGRES_DB: trustfund
+    ports:
+      - "5432:5432"
+    volumes:
+      - trustfund-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustfund"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: ./apps/api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://trustfund:trustfund@db:5432/trustfund?schema=public
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  trustfund-db:
